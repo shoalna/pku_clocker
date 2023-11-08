@@ -1,0 +1,14 @@
+selenium
+beautifulsoup4
+PyYAML
+pandas
+urllib3
+fastapi
+uvicorn
+Jinja2
+geopy
+pydantic
+pydantic-settings
+asyncpg
+sqlalchemy
+filelock

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:14.5-bullseye
+    container_name: pku_clockin_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./db/data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    
+  src:
+    container_name: api
+    build:
+      context: .
+      dockerfile: ./src/Dockerfile
+    ports:
+      - 7778:7778
+    environment:
+      SELENIUM_URL: http://chrome:4444/wd/hub
+    restart: always
+    tty: true
+    volumes:
+      - ./src/app:/api
+
+  # redis:
+  #   container_name: redis
+  #   build: ./redis_custom
+
+  chrome:
+    # for m1
+    image: seleniarm/standalone-chromium:latest
+    # for windows
+    # image: selenium/standalone-chrome:latest
+    ports:
+      - 4444:4444
+      - 7900:7900
+    volumes:
+      - /dev/shm:/dev/shm
