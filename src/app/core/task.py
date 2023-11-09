@@ -162,8 +162,13 @@ async def get_user_info(uid: int):
 
 
 async def background_updater(logger):
+    write_pid(fname="updater.pid")
     while True:
-        write_pid(fname="updater.pid")
+        await asyncio.sleep(5)
+        if not check_pid(fname="updater.pid"):
+            logger.info(f"process [{os.getpid()}] updater quit")
+            break
+
         # run in next day 00:00:00 ~ 00:10:00
         sleep2tomorrow = (datetime.datetime.combine(
             datetime.date.today() + datetime.timedelta(days=1),
@@ -171,12 +176,11 @@ async def background_updater(logger):
         ) - datetime.datetime.now()).total_seconds()
         logger.info(f"Build scheduler after {sleep2tomorrow} seconds")
         await asyncio.sleep(sleep2tomorrow)
-        if not check_pid(fname="updater.pid"):
-            logger.info(f"process [{os.getpid()}] updater quit")
-            break
-        with async_session() as session:
+
+        async with async_session() as session:
             await build_tasks(session, logger)
             await session.commit()
+        logger.info(f"Build scheduler done")
 
 
 async def get_work_type_info(tid):

@@ -39,22 +39,23 @@ middleware = [
 logger = set_logger(__name__, fname=None)
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # await task.background_updater(logger)
-    await task.background_runner(logger)
-    yield
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     # await task.background_updater(logger)
+#     await task.background_runner(logger)
+#     yield
 
 
-app = FastAPI(middleware=middleware, lifespan=lifespan)
-# app = FastAPI(middleware=middleware)
+# app = FastAPI(middleware=middleware, lifespan=lifespan)
+app = FastAPI(middleware=middleware)
 
 
-# @app.on_event("startup")
-# async def startup_event():
-#     import asyncio
-#     # update schedules and init runners
-#     asyncio.create_task(something_bg())
+@app.on_event("startup")
+async def startup_event():
+    import asyncio
+    # update schedules and init runners
+    asyncio.create_task(task.background_updater(logger))
+    asyncio.create_task(task.background_runner(logger))
 
 
 # HTML Response
