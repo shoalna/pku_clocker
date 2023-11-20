@@ -253,6 +253,21 @@ async def upsert_rows(
         await session.commit()
 
 
+async def insert_rows(
+        *, df: pd.DataFrame,
+        session: AsyncSession,
+        table: dbmodel.Base,
+        logger: logging.Logger,
+        on_conflict_do_nothing: bool = False,
+):
+    insert_stmt = insert(table).values(df.to_dict("records"))
+    if on_conflict_do_nothing:
+        insert_stmt = insert_stmt.on_conflict_do_nothing()
+    
+    async with session.begin():
+        await session.execute(insert_stmt)
+        await session.commit()
+
 
 async def update_rows(
         *, df: pd.DataFrame,

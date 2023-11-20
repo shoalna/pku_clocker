@@ -49,9 +49,9 @@ class ENUM_RUN_TYPE_NAME(enum.Enum):
     schedule = "実績スケジュール申請"
 
 
-class ENUM_SCHEDULE_CLOCK_TYPE_NAME(enum.Enum):
-    normal = "通常勤務"
-    custom = "カスタム"
+# class ENUM_SCHEDULE_CLOCK_TYPE_NAME(enum.Enum):
+#     normal = "通常勤務"
+#     custom = "カスタム"
 
 
 class ENUM_TASK_STATUS(enum.Enum):
@@ -120,12 +120,12 @@ m_work_schedule_types = Table(
     Column("id", Integer, primary_key=True),
     Column('type_name', String(50), primary_key=True),
     Column('memo', String(50)),
-    Column('workday', Boolean),
+    Column('run_time', Time),
     Column('telework', Boolean),
-    # Column('clock_type', String(50)),
-    Column('clock_type', Enum(ENUM_SCHEDULE_CLOCK_TYPE_NAME,
-                              values_callable=lambda x:
-                              [str(e.value) for e in ENUM_SCHEDULE_CLOCK_TYPE_NAME])),
+    Column('clock_type', String(50)),
+    # Column('clock_type', Enum(ENUM_SCHEDULE_CLOCK_TYPE_NAME,
+    #                           values_callable=lambda x:
+    #                           [str(e.value) for e in ENUM_SCHEDULE_CLOCK_TYPE_NAME])),
     Column('clockin', Time),
     Column('clockout', Time),
     Column('breakin', Time),

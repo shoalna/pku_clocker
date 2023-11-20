@@ -39,11 +39,11 @@ middleware = [
 logger = set_logger(__name__, fname=None)
 
 
-# @asynccontextmanager
-# async def lifespan(app: FastAPI):
-#     # await task.background_updater(logger)
-#     await task.background_runner(logger)
-#     yield
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # await task.background_updater(logger)
+    await task.background_runner(logger)
+    yield
 
 
 # app = FastAPI(middleware=middleware, lifespan=lifespan)
@@ -54,8 +54,8 @@ app = FastAPI(middleware=middleware)
 async def startup_event():
     import asyncio
     # update schedules and init runners
-    asyncio.create_task(task.background_updater(logger))
     asyncio.create_task(task.background_runner(logger))
+    asyncio.create_task(task.background_updater(logger))
 
 
 # HTML Response
@@ -349,7 +349,7 @@ async def update_all_tasks(
     # update the part of t_applied_schedules
     stask_df = df[df["run_type"].isin([
         model.ENUM_RUN_TYPE_NAME.schedule.value,
-    ])]
+    ])].reset_index(drop=True)
     stask_df["user_id"] = uid
     # stask_df["run_date"] = pd.to_datetime(stask_df["run_date"]).dt.date
 

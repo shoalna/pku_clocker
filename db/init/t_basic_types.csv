@@ -1,1 +1,2 @@
 user_id,clockin_type_name,clockout_type_name,schedule_type_name
+1,在宅出勤,在宅退勤,在宅申請

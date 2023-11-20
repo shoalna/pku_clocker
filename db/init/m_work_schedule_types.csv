@@ -1,2 +1,2 @@
-id,type_name,memo,workday,telework,clock_type,clockin,clockout,breakin,breakout,msg
-1,在宅,在宅勤務申請用,t,t,カスタム,08:30:00,17:15:00,12:00:00,13:00:00,現場規定に従い、在宅勤務とさせていただきます。ご確認お願い致します。
+id,type_name,memo,run_time,telework,clock_type,clockin,clockout,breakin,breakout,msg
+1,在宅申請,,12:30:00,t,カスタム,08:30:00,17:15:00,12:00:00,13:00:00,現場規定に従い、在宅勤務とさせていただきます。ご確認お願い致します。

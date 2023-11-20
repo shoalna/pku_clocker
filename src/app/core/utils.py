@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 
 def is_holiday(date) -> bool:
-    today = pd.Timestamp(date)
+    today = pd.Timestamp(pd.Timestamp(date).date())
 
     # if saturday or sunday. dayofweek start with 0
     if today.dayofweek >= 5:

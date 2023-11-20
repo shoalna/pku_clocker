@@ -105,11 +105,12 @@ class Clocker:
             logger.info(f"[E] {self.runner}")
         except Exception:
             logger.error(traceback.format_exc())
+            raise
+        finally:
             try:
                 self.driver.close()
-            except AttributeError as e:
-                logger.error(f"error in dispose driver: {e}")
-            raise
+            except Exception as e:
+                logger.error(f"Error when dispose driver: {e}")
 
     def __transfer_enum_run_type(self, enum_type: ENUM_RUN_TYPE_NAME):
         if enum_type == ENUM_RUN_TYPE_NAME.cin:

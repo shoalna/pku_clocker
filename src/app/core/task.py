@@ -19,6 +19,9 @@ from core.clocker import Clocker
 from core.utils import is_holiday
 
 
+N_DAYS2BUILD = 14
+
+
 class Task:
     ...
 
@@ -32,6 +35,12 @@ class ApplyTask(Task):
 
 
 async def build_tasks(session: AsyncSession, logger: logging.Logger) -> pd.DataFrame:
+
+    def get_radnom_time_delta(
+            size: int, delta_seconds: int = 300) -> pd.Series:
+        return pd.to_timedelta(np.random.randint(
+            -delta_seconds, delta_seconds, size=size), unit="s")
+        
     # filter users ready to build
     basic = await db_utils.get_rows(
         session=session, table=model.t_basic_types, logger=logger)
@@ -60,7 +69,7 @@ async def build_tasks(session: AsyncSession, logger: logging.Logger) -> pd.DataF
 
     now = pd.Timestamp.now()
     tasks = []
-    for n in range(7):
+    for n in range(N_DAYS2BUILD):
         tmp = tcs.copy(deep=True)
         rundate = (now + pd.Timedelta(n, "d")).date()
         if is_holiday(rundate):
@@ -73,16 +82,16 @@ async def build_tasks(session: AsyncSession, logger: logging.Logger) -> pd.DataF
     res = pd.concat(tasks, axis=0)
     res = res[pd.to_datetime(res["run_time"]) >
               pd.Timestamp.now()].reset_index(drop=True)
-    res["run_time"] = res["run_time"] + pd.to_timedelta(
-        np.random.randint(-300, 300, size=len(res)), unit="s")
+    res["run_time"] = res["run_time"] + get_radnom_time_delta(size=len(res))
     res["run_date"] = res["run_time"].dt.date
     res["active"] = True
 
-    await db_utils.upsert_rows(
+    await db_utils.insert_rows(
         df=res[db_utils.get_db_keys(model.t_clock_schedules)],
         session=session,
         table=model.t_clock_schedules,
         logger=logger,
+        on_conflict_do_nothing=True,
     )
 
     # merge real time
@@ -94,10 +103,9 @@ async def build_tasks(session: AsyncSession, logger: logging.Logger) -> pd.DataF
     tas.dropna(subset="id", inplace=True)
     tas.rename(columns={"id": "schedule_type_id"}, inplace=True)
     tas["applied"] = "pending"
-    tas["run_time"] = datetime.time(12, 30, 00)
 
     tasks = []
-    for n in range(7):
+    for n in range(N_DAYS2BUILD):
         tmp = tas.copy(deep=True)
         rundate = (now + pd.Timedelta(n, "d")).date()
         if is_holiday(rundate):
@@ -110,18 +118,18 @@ async def build_tasks(session: AsyncSession, logger: logging.Logger) -> pd.DataF
     res = pd.concat(tasks, axis=0)
     res = res[pd.to_datetime(res["run_time"]) >
               pd.Timestamp.now()].reset_index(drop=True)
-    res["run_time"] = res["run_time"] + pd.to_timedelta(
-        np.random.randint(-300, 300, size=len(res)), unit="s")
+    res["run_time"] = res["run_time"] + get_radnom_time_delta(len(res))
     res["run_date"] = res["run_time"].dt.date
     res["active"] = True
     res["run_type"] = model.ENUM_RUN_TYPE_NAME.schedule
     res["apply_date"] = res["run_time"].apply(get_next_work_day)
 
-    await db_utils.upsert_rows(
+    await db_utils.insert_rows(
         df=res[db_utils.get_db_keys(model.t_applied_schedules)],
         session=session,
         table=model.t_applied_schedules,
         logger=logger,
+        on_conflict_do_nothing=True,
     )
 
 
@@ -174,6 +182,7 @@ async def background_updater(logger):
             datetime.date.today() + datetime.timedelta(days=1),
             datetime.time(0, random.randint(0, 9), random.randint(0, 59)),
         ) - datetime.datetime.now()).total_seconds()
+        # sleep2tomorrow = 10
         logger.info(f"Build scheduler after {sleep2tomorrow} seconds")
         await asyncio.sleep(sleep2tomorrow)
 

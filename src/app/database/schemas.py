@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .model import (
     ENUM_RUN_TYPE_NAME,
-    ENUM_SCHEDULE_CLOCK_TYPE_NAME,
+    # ENUM_SCHEDULE_CLOCK_TYPE_NAME,
     ENUM_TASK_STATUS,
 )
 
@@ -36,7 +36,7 @@ class M_USERS(BaseModel):
     memo: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class M_WORK_TYPES(BaseModel):
@@ -62,9 +62,9 @@ class M_WORK_SCHEDULE_TYPES(BaseModel):
     id: int
     type_name: str
     memo: str
-    workday: bool
+    run_time: datetime.time
     telework: bool
-    clock_type: ENUM_SCHEDULE_CLOCK_TYPE_NAME
+    clock_type: str
     clockin: datetime.time
     clockout: datetime.time
     breakin: datetime.time
@@ -72,7 +72,7 @@ class M_WORK_SCHEDULE_TYPES(BaseModel):
     msg: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class T_BASIC_TYPES(BaseModel):
@@ -82,7 +82,7 @@ class T_BASIC_TYPES(BaseModel):
     schedule_type_name: str
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class T_APPLIED_SCHEDULES(BaseModel):
@@ -96,4 +96,4 @@ class T_APPLIED_SCHEDULES(BaseModel):
     active: bool
 
     class Config:
-        orm_mode = True
+        from_attributes = True
